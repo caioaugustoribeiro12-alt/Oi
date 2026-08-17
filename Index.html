@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teste de localização</title>
+</head>
+
+<body>
+    <h1>Teste de localização</h1>
+
+    <p>
+        Este é um teste autorizado. Ao continuar, sua localização
+        será compartilhada com o responsável pelo teste.
+    </p>
+
+    <button onclick="localizar()">Compartilhar localização</button>
+
+    <p id="resultado"></p>
+
+    <script>
+        function localizar() {
+            if (!navigator.geolocation) {
+                document.getElementById("resultado").textContent =
+                    "Seu navegador não suporta localização.";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async function(pos) {
+                    const dados = {
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude
+                    };
+
+                    try {
+                        await fetch("/location", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(dados)
+                        });
+
+                        document.getElementById("resultado").textContent =
+                            "Localização compartilhada com sucesso.";
+                    } catch (erro) {
+                        document.getElementById("resultado").textContent =
+                            "Não foi possível enviar a localização.";
+                    }
+                },
+                function() {
+                    document.getElementById("resultado").textContent =
+                        "A localização não foi autorizada.";
+                }
+            );
+        }
+    </script>
+</body>
+</html>
